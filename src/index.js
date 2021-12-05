@@ -19,6 +19,16 @@ function VerifyIfExistsAcountCPF(request,response,next){
     
     
 }
+function getBalance(statement){
+    const balance = statement.reduce((acc,operation) =>{
+        if(operation.type ==="credit"){
+            return acc + operation.amount;
+        }else{
+            return acc - operation.amount;
+        }
+    },0);
+    return balance;
+}
 
 
 //Criar Conta
@@ -80,6 +90,38 @@ app.get("/statement/date",VerifyIfExistsAcountCPF,(request,response) => {
 
     return response.json(customer.statement);
 
+})
+//Atualizar nome da Conta
+app.put("/account",VerifyIfExistsAcountCPF,(request,response)=>{
+const { name } = request.body;
+const { customer } = request;
+
+customer.name = name;
+
+return response.status(201).send();
+})
+
+//Buscando dados da conta
+app.get("/account",VerifyIfExistsAcountCPF,(request,response)=>{
+    const { customer } = request;
+    
+    return response.json(customer);
+})
+
+//Buscando balance da conta
+app.get("/balance",VerifyIfExistsAcountCPF,(request,response)=>{
+    const { customer } = request;
+    
+    const baçamce = getBalance(customer.statement)
+
+    return response.json(balance);
+})
+
+//Deletar Conta
+app.delete("/account", VerifyIfExistsAcountCPF,(request,response) =>{
+    const {customer} = request;
+    customers.splice(customer,1);
+    return response.status(200).json(customers);
 })
 
 //Configurando inicializaçao. Ultima aula "5"
